@@ -242,24 +242,28 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
 
         slider.Default = caller[slider.Flag] or Connections[slider.Flag]
 
-        local actual_callback: (number) -> () = slider.Callback or default_config.Callback
-
-        for index: string, value: any in pairs(default_config) do
-            if not slider[index] then
+        for index, value in pairs(default_config) do
+            if slider[index] == nil then
                 slider[index] = value
             end
         end
 
+        slider.Default = math.clamp(slider.Default, slider.Min, slider.Max)
+
+        local actual_callback = slider.Callback or default_config.Callback
+
         slider.Callback = function(value: number)
+            value = math.clamp(value, slider.Min, slider.Max)
             Connections[slider.Flag] = value
             actual_callback(value)
 
             EasyFluent.save_config()
         end
 
-        local new_slider: any = tab_connection:AddSlider(connection, slider)
+        local new_slider = tab_connection:AddSlider(connection, slider)
 
         function new_slider:set(value: number)
+            value = math.clamp(value, slider.Min, slider.Max)
             new_slider:SetValue(value)
             Connections[slider.Flag] = value
 
