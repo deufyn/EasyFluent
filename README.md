@@ -1,15 +1,14 @@
 # About EasyFluent
 
-An externally improved version of fluent, with new callback logic, flags callback logic & auto save config.
+- An externally improved version of fluent, with new callback logic, flags callback logic & auto save config.
 
 # EasyFluent Loader
 ```lua
 local EasyFluent = loadstring(game:HttpGet('https://raw.githubusercontent.com/deufyn/EasyFluent/refs/heads/main/src/EasyFluent.luau'))()
 ```
-
+- Example of how to use: [Example](https://github.com/deufyn/EasyFluent/blob/main/Example.luau)
 # NOTE
-
-Easyfluent is not completely done, it may have some errors in some situations or something.
+- Easyfluent is not completely done, it may have some errors in some situations or something.
 
 # Credits
 
