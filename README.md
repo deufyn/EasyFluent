@@ -1,5 +1,9 @@
 # About EasyFluent
-- An externally improved version of fluent, with new callback logic, flags callback logic & auto save config.
+- An externally improved version of fluent, with modifications that can help with the performance of your script-hub.
+# EasyFluent Features
+- FLAGS LOGIC: Improve performance and facilitate the use of callbacks.
+- CALLBACK DEFINITIONS: Avoid the use of tonumber, tostring and more, easy fluent already sets the callback exactly.
+- AUTO SAVE CONFIG: saving callback as per user settings, the method is "game.PlaceId" but you can get source in [src](https://github.com/deufyn/EasyFluent/blob/main/src/EasyFluent.luau) and change it.
 # EasyFluent Loader
 ```lua
 local EasyFluent = loadstring(game:HttpGet('https://raw.githubusercontent.com/deufyn/EasyFluent/refs/heads/main/src/EasyFluent.luau'))()
