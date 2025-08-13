@@ -19,7 +19,7 @@ do
         Title = 'Toggle',
         Description = '',
         -- Default = ''
-        Flag = '',
+        Flag = 'toggle',
         Callback = function(value)
             print(`toggle value: {value}`)
         end
@@ -41,7 +41,7 @@ do
             'Three'
         },
         -- Default = 1,
-        Flag = '',
+        Flag = 'dropdown',
         Callback = function(value)
             print(`dropdown value: {value}`)
         end
@@ -53,7 +53,7 @@ do
         Max = 100,
         Default = 50,
         Rounding = 1,
-        Flag = '',
+        Flag = 'slider',
         Callback = function(value)
             print(`dropdown value: {value}`)
         end
