@@ -40,7 +40,7 @@ do
             'Two',
             'Three'
         },
-        -- Default = 1,
+        Default = 1,
         Flag = 'dropdown',
         Callback = function(value)
             print(`dropdown value: {value}`)
