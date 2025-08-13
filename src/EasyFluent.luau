@@ -78,7 +78,6 @@ type NotificationConfig = {
 }
 
 cloneref = cloneref or function(...) return ... end
-
 local HttpService = cloneref(game:GetService('HttpService'))
 
 local Fluent = loadstring(game:HttpGet('https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua'))()
@@ -86,20 +85,20 @@ local Fluent = loadstring(game:HttpGet('https://github.com/dawid-scripts/Fluent/
 local ClientConfig: { [string]: any } = {}
 local ReadConfig: { [string]: any } = {}
 
-function EasyFluent.save_config(): ''
+function EasyFluent.save_config()
     if not isfolder(folder_name) then
         makefolder(folder_name)
     end
 
-    if not isfolder(`{folder_name}/config`) then
-        makefolder(`{folder_name}/config`)
+    if not isfolder(`{folder_name}/config/{game.PlaceId}.json`) then
+        makefolder(`{folder_name}/config/{game.PlaceId}.json`)
     end
 
     if not isfile(`{folder_name}/config/{game.PlaceId}.json`) then
         writefile(`{folder_name}/config/{game.PlaceId}.json`, HttpService:JSONEncode({}))
     end
 
-    for index: string, value: any in pairs(Connections) do
+    for index, value in pairs(Connections) do
         if type(value) == 'table' then
             ClientConfig[index] = HttpService:JSONDecode(HttpService:JSONEncode(value))
         else
@@ -112,19 +111,19 @@ function EasyFluent.save_config(): ''
     end)
 end
 
-function EasyFluent.read_config(): { [string]: any }
+function EasyFluent.read_config()
     if not isfolder(folder_name) or not isfile(`{folder_name}/config/{game.PlaceId}.json`) then
         EasyFluent.save_config()
     end
 
-    local success: boolean, result: { [string]: any }? = pcall(function()
+    local success, result = pcall(function()
         return HttpService:JSONDecode(readfile(`{folder_name}/config/{game.PlaceId}.json`))
     end)
 
     if success and result then
         ReadConfig = result
 
-        for index: string, value: any in pairs(ReadConfig) do
+        for index, value in pairs(ReadConfig) do
             Connections[index] = value
         end
     else
@@ -134,7 +133,7 @@ function EasyFluent.read_config(): { [string]: any }
     return ReadConfig
 end
 
-local caller: { [string]: any } = EasyFluent.read_config()
+local caller = EasyFluent.read_config()
 
 function EasyFluent:create_window(window)
     local _, window_instance = pcall(function()
@@ -152,7 +151,7 @@ function EasyFluent:create_window(window)
     return window_instance
 end
 
-function EasyFluent:notify(notification: NotificationConfig): any
+function EasyFluent:notify(notification: NotificationConfig)
     notification.Title = notification.Title or 'Notification'
     notification.Content = notification.Content or 'Content'
     notification.Duration = notification.Duration or 5
@@ -160,19 +159,19 @@ function EasyFluent:notify(notification: NotificationConfig): any
     return Fluent:Notify(notification)
 end
 
-function EasyFluent:create_tab(window: any, tab: TabConfig): any
-    local tab_connection: any = window:AddTab(tab)
+function EasyFluent:create_tab(window: any, tab: TabConfig)
+    local tab_connection = window:AddTab(tab)
 
-    function tab_connection:create_paragraph(paragraph: ParagraphConfig): any
-        local paragraph_title: string = paragraph.Title or 'Response'
-        local paragraph_content: string = paragraph.Content or 'Content'
+    function tab_connection:create_paragraph(paragraph: ParagraphConfig)
+        local paragraph_title = paragraph.Title or 'Response'
+        local paragraph_content = paragraph.Content or 'Content'
 
-        local paragraph_connection: any = tab_connection:AddParagraph({
+        local paragraph_connection = tab_connection:AddParagraph({
             Title = paragraph_title,
             Content = paragraph_content
         })
 
-        function paragraph_connection:set(): ''
+        function paragraph_connection:set()
             paragraph_connection:SetTitle(paragraph_title)
             paragraph_connection:SetDesc(paragraph_content)
         end
@@ -180,7 +179,7 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
         return paragraph_connection
     end
 
-    function tab_connection:create_button(button: ButtonConfig): any
+    function tab_connection:create_button(button: ButtonConfig)
         button.Title = button.Title or 'Button'
         button.Description = button.Description or ''
         button.Callback = button.Callback or function() end
@@ -188,7 +187,7 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
         return tab_connection:AddButton(button)
     end
 
-    function tab_connection:create_dialog(dialog: DialogConfig): any
+    function tab_connection:create_dialog(dialog: DialogConfig)
         dialog.Title = dialog.Title or ''
         dialog.Content = dialog.Content or ''
         dialog.Buttons = dialog.Buttons or {}
@@ -196,24 +195,24 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
         return window:Dialog(dialog)
     end
 
-    function tab_connection:create_toggle(connection: string, toggle: ToggleConfig): any
+    function tab_connection:create_toggle(connection: string, toggle: ToggleConfig)
         toggle.Title = toggle.Title or 'Toggle'
         toggle.Description = toggle.Description or ''
         toggle.Flag = toggle.Flag or connection
-        toggle.Default = caller[toggle.Flag] or Connections[toggle.Flag] or false
+        toggle.Default = (type(caller[toggle.Flag]) == 'boolean' and caller[toggle.Flag]) or (type(Connections[toggle.Flag]) == 'boolean' and Connections[toggle.Flag]) or false
 
-        local actual_callback: (boolean) -> () = toggle.Callback or function() end
+        local actual_callback = toggle.Callback or function() end
 
-        toggle.Callback = function(value: boolean): ''
+        toggle.Callback = function(value: boolean)
             Connections[toggle.Flag] = value
             actual_callback(value)
 
             EasyFluent.save_config()
         end
 
-        local toggle_connection: any = tab_connection:AddToggle(connection, toggle)
+        local toggle_connection = tab_connection:AddToggle(connection, toggle)
 
-        function toggle_connection:set(bool: boolean): ''
+        function toggle_connection:set(bool: boolean)
             Fluent.Options[connection]:SetValue(bool)
             Connections[toggle.Flag] = bool
 
@@ -223,23 +222,24 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
         return toggle_connection
     end
 
-    function tab_connection:create_slider(connection: string, slider: SliderConfig): any
-        local default_config: SliderConfig = {
+    function tab_connection:create_slider(connection: string, slider: SliderConfig)
+        local default_config = {
             Title = 'Slider',
             Description = '',
             Min = 0,
             Max = 5,
-            Default = 2,
-            Rounding = 1,
-            Callback = function(value: number) end
+            Default = 2, Rounding = 1,
+            Callback = function(_) end
         }
 
         slider.Flag = slider.Flag or connection
-        slider.Default = caller[slider.Flag] or Connections[slider.Flag] or default_config.Default
 
-        Connections[slider.Flag] = slider.Default
+        if not tonumber(caller[slider.Flag]) and not tonumber(Connections[slider.Flag]) then
+            Connections[slider.Flag] = slider.Min or default_config.Min
+        end
 
-        local actual_callback: (number) -> () = slider.Callback or default_config.Callback
+        slider.Default = tonumber(caller[slider.Flag]) or tonumber(Connections[slider.Flag]) or default_config.Default
+        local actual_callback = slider.Callback or default_config.Callback
 
         for index, value in pairs(default_config) do
             if slider[index] == nil then
@@ -247,35 +247,49 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
             end
         end
 
-        slider.Callback = function(value: number): ''
+        slider.Callback = function(value: number)
             Connections[slider.Flag] = value
             actual_callback(value)
 
             EasyFluent.save_config()
         end
 
-        local new_slider: any = tab_connection:AddSlider(connection, slider)
+        local new_slider = tab_connection:AddSlider(connection, slider)
 
-        task.defer(function()
-            new_slider:SetValue(slider.Default)
-        end)
+        function new_slider:set(value: number)
+            new_slider:SetValue(value)
+            Connections[slider.Flag] = value
+
+            EasyFluent.save_config()
+        end
 
         return new_slider
     end
 
-    function tab_connection:create_dropdown(connection: string, dropdown: DropdownConfig): any
-        local dropdown_default: DropdownConfig = {
+    function tab_connection:create_dropdown(connection: string, dropdown: DropdownConfig)
+        local dropdown_default = {
             Title = 'Dropdown',
             Values = {},
             Multi = false,
             Default = nil,
-            Callback = function(value: any) end
+            Callback = function(_) end
         }
 
         dropdown.Flag = dropdown.Flag or connection
 
-        dropdown.Default = caller[dropdown.Flag] or Connections[dropdown.Flag] or dropdown.Default
-        Connections[dropdown.Flag] = dropdown.Default
+        if dropdown.Multi then
+            if type(caller[dropdown.Flag]) ~= 'table' and type(Connections[dropdown.Flag]) ~= 'table' then
+                Connections[dropdown.Flag] = {}
+
+                for _, value in pairs(dropdown.Values or {}) do
+                    Connections[dropdown.Flag][value] = false
+                end
+            end
+        elseif caller[dropdown.Flag] == nil and Connections[dropdown.Flag] == nil then
+            Connections[dropdown.Flag] = dropdown.Default
+        end
+
+        dropdown.Default = caller[dropdown.Flag] or Connections[dropdown.Flag]
 
         for index, value in pairs(dropdown_default) do
             if dropdown[index] == nil then
@@ -283,41 +297,45 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
             end
         end
 
-        local new_dropdown: any = tab_connection:AddDropdown(connection, dropdown)
+        local new_dropdown = tab_connection:AddDropdown(connection, dropdown)
 
-        new_dropdown:OnChanged(function(value: any): ''
+        new_dropdown:OnChanged(function(value: any)
             Connections[dropdown.Flag] = value
 
             EasyFluent.save_config()
         end)
 
-        task.defer(function()
-            new_dropdown:SetValue(dropdown.Default)
-        end)
+        function new_dropdown:set(value: any)
+            new_dropdown:SetValue(value)
+            Connections[dropdown.Flag] = value
+
+            EasyFluent.save_config()
+        end
 
         return new_dropdown
     end
 
-    function tab_connection:create_keybind(connection: string, keybind: KeybindConfig): any
-        local keybind_default: KeybindConfig = {
+    function tab_connection:create_keybind(connection: string, keybind: KeybindConfig)
+        local keybind_default = {
             Title = 'Title',
             Mode = 'Toggle',
             Default = 'LeftControl',
-            Callback = function(value: boolean) end
+            Callback = function(_) end
         }
 
         keybind.Flag = keybind.Flag or connection
-        keybind.Default = caller[keybind.Flag] or Connections[keybind.Flag] or keybind_default.Default
+        local saved = caller[keybind.Flag] or Connections[keybind.Flag]
 
-        local actual_callback: (string) -> () = keybind.Callback or keybind_default.Callback
+        keybind.Default = (type(saved) == 'string' and saved) or keybind_default.Default
+        local actual_callback = keybind.Callback or keybind_default.Callback
 
-        for index: string, value: any in pairs(keybind_default) do
-            if not keybind[index] then
+        for index, value in pairs(keybind_default) do
+            if keybind[index] == nil then
                 keybind[index] = value
             end
         end
 
-        keybind.Callback = function(value: string): ''
+        keybind.Callback = function(value: string)
             Connections[keybind.Flag] = value
             actual_callback(value)
 
@@ -327,28 +345,29 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
         return tab_connection:AddKeybind(connection, keybind)
     end
 
-    function tab_connection:create_input(connection: string, input: InputConfig): any
-        local input_default: InputConfig = {
+    function tab_connection:create_input(connection: string, input: InputConfig)
+        local input_default = {
             Title = 'Input',
             Default = '',
             Placeholder = 'Placeholder',
             Numeric = false,
             Finished = true,
-            Callback = function(value: string) end
+            Callback = function(_) end
         }
 
         input.Flag = input.Flag or connection
-        input.Default = caller[input.Flag] or Connections[input.Flag] or input_default.Default
+        local saved = caller[input.Flag] or Connections[input.Flag]
 
-        local actual_callback: (string) -> () = input.Callback or input_default.Callback
+        input.Default = (type(saved) == 'string' and saved) or input_default.Default
+        local actual_callback = input.Callback or input_default.Callback
 
-        for index: string, value: any in pairs(input_default) do
-            if not input[index] then
+        for index, value in pairs(input_default) do
+            if input[index] == nil then
                 input[index] = value
             end
         end
 
-        input.Callback = function(value: string): ''
+        input.Callback = function(value: string)
             Connections[input.Flag] = value
             actual_callback(value)
 
