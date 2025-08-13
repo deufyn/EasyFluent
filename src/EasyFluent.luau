@@ -250,7 +250,7 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
             end
         end
 
-        slider.Callback = function(value: number): ''
+        slider.Callback = function(value: number)
             Connections[slider.Flag] = value
             actual_callback(value)
 
@@ -259,7 +259,7 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
 
         local new_slider: any = tab_connection:AddSlider(connection, slider)
 
-        function new_slider:set(value: number): ''
+        function new_slider:set(value: number)
             new_slider:SetValue(value)
             Connections[slider.Flag] = value
 
