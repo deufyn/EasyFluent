@@ -7,7 +7,6 @@ local EasyFluent = loadstring(game:HttpGet('https://raw.githubusercontent.com/de
 - Example of how to use: [Example](https://github.com/deufyn/EasyFluent/blob/main/Example.luau)
 # NOTE
 - Easyfluent is not completely done, it may have some errors in some situations or something.
-
 # Credits
 [Fluent UI Library creator](https://github.com/dawid-scripts)
 
