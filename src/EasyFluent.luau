@@ -85,20 +85,20 @@ local Fluent = loadstring(game:HttpGet('https://github.com/dawid-scripts/Fluent/
 local ClientConfig: { [string]: any } = {}
 local ReadConfig: { [string]: any } = {}
 
-function EasyFluent.save_config()
+function EasyFluent.save_config(): ''
     if not isfolder(folder_name) then
         makefolder(folder_name)
     end
 
-    if not isfolder(`{folder_name}/config/{game.PlaceId}.json`) then
-        makefolder(`{folder_name}/config/{game.PlaceId}.json`)
+    if not isfolder(`{folder_name}/config`) then
+        makefolder(`{folder_name}/config`)
     end
 
     if not isfile(`{folder_name}/config/{game.PlaceId}.json`) then
         writefile(`{folder_name}/config/{game.PlaceId}.json`, HttpService:JSONEncode({}))
     end
 
-    for index, value in pairs(Connections) do
+    for index: string, value: any in pairs(Connections) do
         if type(value) == 'table' then
             ClientConfig[index] = HttpService:JSONDecode(HttpService:JSONEncode(value))
         else
@@ -111,19 +111,19 @@ function EasyFluent.save_config()
     end)
 end
 
-function EasyFluent.read_config()
+function EasyFluent.read_config(): { [string]: any }
     if not isfolder(folder_name) or not isfile(`{folder_name}/config/{game.PlaceId}.json`) then
         EasyFluent.save_config()
     end
 
-    local success, result = pcall(function()
+    local success: boolean, result: { [string]: any }? = pcall(function()
         return HttpService:JSONDecode(readfile(`{folder_name}/config/{game.PlaceId}.json`))
     end)
 
     if success and result then
         ReadConfig = result
 
-        for index, value in pairs(ReadConfig) do
+        for index: string, value: any in pairs(ReadConfig) do
             Connections[index] = value
         end
     else
