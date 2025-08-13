@@ -235,12 +235,11 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
         }
 
         slider.Flag = slider.Flag or connection
+        slider.Default = caller[slider.Flag] or Connections[slider.Flag] or default_config.Default
 
-        if not caller[slider.Flag] and not Connections[slider.Flag] then
-            Connections[slider.Flag] = slider.Min or default_config.Min
-        end
+        Connections[slider.Flag] = slider.Default
 
-        slider.Default = caller[slider.Flag] or Connections[slider.Flag]
+        local actual_callback: (number) -> () = slider.Callback or default_config.Callback
 
         for index, value in pairs(default_config) do
             if slider[index] == nil then
@@ -248,27 +247,18 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
             end
         end
 
-        slider.Default = math.clamp(slider.Default, slider.Min, slider.Max)
-
-        local actual_callback = slider.Callback or default_config.Callback
-
-        slider.Callback = function(value: number)
-            value = math.clamp(value, slider.Min, slider.Max)
+        slider.Callback = function(value: number): ''
             Connections[slider.Flag] = value
             actual_callback(value)
 
             EasyFluent.save_config()
         end
 
-        local new_slider = tab_connection:AddSlider(connection, slider)
+        local new_slider: any = tab_connection:AddSlider(connection, slider)
 
-        function new_slider:set(value: number)
-            value = math.clamp(value, slider.Min, slider.Max)
-            new_slider:SetValue(value)
-            Connections[slider.Flag] = value
-
-            EasyFluent.save_config()
-        end
+        task.defer(function()
+            new_slider:SetValue(slider.Default)
+        end)
 
         return new_slider
     end
@@ -284,20 +274,11 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
 
         dropdown.Flag = dropdown.Flag or connection
 
-        if dropdown.Multi and not caller[dropdown.Flag] and not Connections[dropdown.Flag] then
-            Connections[dropdown.Flag] = {}
+        dropdown.Default = caller[dropdown.Flag] or Connections[dropdown.Flag] or dropdown.Default
+        Connections[dropdown.Flag] = dropdown.Default
 
-            for _, value: string in pairs(dropdown.Values or {}) do
-                Connections[dropdown.Flag][value] = false
-            end
-        elseif not caller[dropdown.Flag] and not Connections[dropdown.Flag] then
-            Connections[dropdown.Flag] = dropdown.Default
-        end
-
-        dropdown.Default = caller[dropdown.Flag] or Connections[dropdown.Flag]
-
-        for index: string, value: any in pairs(dropdown_default) do
-            if not dropdown[index] then
+        for index, value in pairs(dropdown_default) do
+            if dropdown[index] == nil then
                 dropdown[index] = value
             end
         end
@@ -310,12 +291,9 @@ function EasyFluent:create_tab(window: any, tab: TabConfig): any
             EasyFluent.save_config()
         end)
 
-        function new_dropdown:set(value: any): ''
-            new_dropdown:SetValue(value)
-            Connections[dropdown.Flag] = value
-
-            EasyFluent.save_config()
-        end
+        task.defer(function()
+            new_dropdown:SetValue(dropdown.Default)
+        end)
 
         return new_dropdown
     end
