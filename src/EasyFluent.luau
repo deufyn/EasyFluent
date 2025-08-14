@@ -380,4 +380,4 @@ function EasyFluent:create_tab(window: any, tab: TabConfig)
     return tab_connection
 end
 
-return EasyFluent
+return EasyFluent, Connections
